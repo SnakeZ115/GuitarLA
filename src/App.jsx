@@ -46,6 +46,15 @@
 // Los componentes de react utilizan props para comunicarse entre ellos, se le puede pasar infor de un padre a un hijo mediante props, le puedes pasar de todo
 // son como atributos de html
 
+// EVENTOS
+// Se manejan muy similar a JS
+// se escriben en camelCase
+// la funcion se escribe entre {funcion}
+// se recomienda nombrarlos como handle{evento}, por ejemplo, handleSubmit
+
+//INMUTABILIDAD
+// QUE NO SE PUEDE CAMBIAR
+
 import { useState, useEffect } from "react"
 import Header from "./components/Header"
 import Guitar from "./components/Guitar"
@@ -54,8 +63,23 @@ import { db } from "./data/db"
 function App() {
 
   const [data, setData] = useState(db)
+  const [cart, setCart] = useState([])
 
-  
+  function addToCart(item) {
+    const itemExits = cart.findIndex((guitar) => guitar.id === item.id)
+    if(itemExits >= 0) {
+      // El item existe
+      const updateCart = [...cart] // copia del state
+      updateCart[itemExits].quantity++;
+      setCart(updateCart)
+    }
+    else {
+      // el item no existe
+      item.quantity = 1
+      setCart([...cart, item])
+    }
+    
+  }
 
   return (
     <>
@@ -70,6 +94,8 @@ function App() {
                 <Guitar
                   key={guitar.id} // el key siempre se pone siempre que se itera. tiene que ser un valor unico
                   guitar={guitar}
+                  setCart={setCart}
+                  addToCart={addToCart} // pasandole la variable para actualizar el carrito
                 />
               )
             )}
