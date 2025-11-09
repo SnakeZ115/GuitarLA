@@ -8,7 +8,7 @@
 // Te permiten utilizar las diferentes funciones de react en los componentes
 // Ya hay algunas incluidas pero se pueden hacer unas propias
 
-// STATE EN REACT
+// STATE EN REACT - ASINCRONO
 // El state es una variable con informacion relevante de la app de react
 // algunas veces el state pertenece a algun componente en especifico o algunas veces deseas compartirlo a lo largo de otros componentes
 // NOTA: Piensa en el como el resultado de alguna interaccion en el sitio web (listado de clientes, imagen a mostrar de una galeria, usuario autenticado o no)
@@ -62,8 +62,14 @@ import { db } from "./data/db"
 
 function App() {
 
-  const [data, setData] = useState(db)
-  const [cart, setCart] = useState([])
+  // Busca si hay algo en el local storage, si hay, el valor inicial de cart es lo que hay en local storage, si no, regresa un arreglo vacio
+  const initialCart = () => {
+    const localStorageCart = localStorage.getItem('cart')
+    return localStorageCart ? JSON.parse(localStorageCart) : []
+  }
+
+  const [data] = useState(db)
+  const [cart, setCart] = useState(initialCart)
 
   const MAX_ITEMS = 5
   const MIN_ITEMS = 1
@@ -119,6 +125,12 @@ function App() {
   function deleteCart() {
     setCart([])
   }
+
+  // Funcion para guardar en el local storage y que no se pierdan los items seleccionados
+  // Cuando cambie carrito, se ejecuta este codigo
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart))
+  }, [cart])
 
   return (
     <>
