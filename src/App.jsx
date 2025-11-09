@@ -46,6 +46,15 @@
 // Los componentes de react utilizan props para comunicarse entre ellos, se le puede pasar infor de un padre a un hijo mediante props, le puedes pasar de todo
 // son como atributos de html
 
+// EVENTOS
+// Se manejan muy similar a JS
+// se escriben en camelCase
+// la funcion se escribe entre {funcion}
+// se recomienda nombrarlos como handle{evento}, por ejemplo, handleSubmit
+
+//INMUTABILIDAD
+// QUE NO SE PUEDE CAMBIAR
+
 import { useState, useEffect } from "react"
 import Header from "./components/Header"
 import Guitar from "./components/Guitar"
@@ -54,12 +63,72 @@ import { db } from "./data/db"
 function App() {
 
   const [data, setData] = useState(db)
+  const [cart, setCart] = useState([])
 
-  
+  const MAX_ITEMS = 5
+  const MIN_ITEMS = 1
+
+  function addToCart(item) {
+    const itemExits = cart.findIndex((guitar) => guitar.id === item.id)
+    if(itemExits >= 0) {
+      // El item existe
+      const updateCart = [...cart] // copia del state
+      if(updateCart[itemExits].quantity < MAX_ITEMS) {
+        updateCart[itemExits].quantity++;
+        setCart(updateCart)        
+      }
+    }
+    else {
+      // el item no existe
+      item.quantity = 1
+      setCart([...cart, item])
+    }
+    
+  }
+
+  function deleteFromCart(id) {
+    setCart(prevCart => prevCart.filter(guitar => guitar.id !== id))
+  }
+
+  function increaseQuantity(id) {
+    const updatedCard = cart.map(item => {
+      if(item.id === id && item.quantity < MAX_ITEMS) {
+        return {
+          ...item,
+          quantity: item.quantity + 1
+        }
+      }
+      return item
+    })
+    setCart(updatedCard)
+  }
+
+  function decreaseQuantity(id) {
+    const updatedCard = cart.map(item => {
+      if(item.id === id && item.quantity > MIN_ITEMS) {
+        return {
+          ...item,
+          quantity: item.quantity - 1
+        }
+      }
+      return item
+    })
+    setCart(updatedCard)
+  }
+
+  function deleteCart() {
+    setCart([])
+  }
 
   return (
     <>
-      <Header /> 
+      <Header 
+        cart={cart}
+        deleteFromCart={deleteFromCart}
+        increaseQuantity={increaseQuantity}
+        decreaseQuantity={decreaseQuantity}
+        deleteCart={deleteCart}
+      /> 
 
       <main className="container-xl mt-5">
           <h2 className="text-center">Nuestra Colección</h2>
@@ -70,6 +139,8 @@ function App() {
                 <Guitar
                   key={guitar.id} // el key siempre se pone siempre que se itera. tiene que ser un valor unico
                   guitar={guitar}
+                  setCart={setCart}
+                  addToCart={addToCart} // pasandole la variable para actualizar el carrito
                 />
               )
             )}
