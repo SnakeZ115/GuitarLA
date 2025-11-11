@@ -55,82 +55,26 @@
 //INMUTABILIDAD
 // QUE NO SE PUEDE CAMBIAR
 
-import { useState, useEffect } from "react"
 import Header from "./components/Header"
 import Guitar from "./components/Guitar"
-import { db } from "./data/db"
+import useCart from "./hooks/useCart"
 
 function App() {
 
-  // Busca si hay algo en el local storage, si hay, el valor inicial de cart es lo que hay en local storage, si no, regresa un arreglo vacio
-  const initialCart = () => {
-    const localStorageCart = localStorage.getItem('cart')
-    return localStorageCart ? JSON.parse(localStorageCart) : []
-  }
+  // Para los hooks personalizados, solamente se debe tener una instancia ya que cuando los usamos, basicamente volvemos a llamar toda la funcion, seteando a 0 todo
+  const { 
+      data,
+      cart,
+      addToCart,
+      deleteFromCart,
+      increaseQuantity,
+      decreaseQuantity,
+      deleteCart,
+      isEmpty,
+      cartTotal
+    } = useCart()
 
-  const [data] = useState(db)
-  const [cart, setCart] = useState(initialCart)
-
-  const MAX_ITEMS = 5
-  const MIN_ITEMS = 1
-
-  function addToCart(item) {
-    const itemExits = cart.findIndex((guitar) => guitar.id === item.id)
-    if(itemExits >= 0) {
-      // El item existe
-      const updateCart = [...cart] // copia del state
-      if(updateCart[itemExits].quantity < MAX_ITEMS) {
-        updateCart[itemExits].quantity++;
-        setCart(updateCart)        
-      }
-    }
-    else {
-      // el item no existe
-      item.quantity = 1
-      setCart([...cart, item])
-    }
-    
-  }
-
-  function deleteFromCart(id) {
-    setCart(prevCart => prevCart.filter(guitar => guitar.id !== id))
-  }
-
-  function increaseQuantity(id) {
-    const updatedCard = cart.map(item => {
-      if(item.id === id && item.quantity < MAX_ITEMS) {
-        return {
-          ...item,
-          quantity: item.quantity + 1
-        }
-      }
-      return item
-    })
-    setCart(updatedCard)
-  }
-
-  function decreaseQuantity(id) {
-    const updatedCard = cart.map(item => {
-      if(item.id === id && item.quantity > MIN_ITEMS) {
-        return {
-          ...item,
-          quantity: item.quantity - 1
-        }
-      }
-      return item
-    })
-    setCart(updatedCard)
-  }
-
-  function deleteCart() {
-    setCart([])
-  }
-
-  // Funcion para guardar en el local storage y que no se pierdan los items seleccionados
-  // Cuando cambie carrito, se ejecuta este codigo
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart))
-  }, [cart])
+  
 
   return (
     <>
@@ -140,6 +84,8 @@ function App() {
         increaseQuantity={increaseQuantity}
         decreaseQuantity={decreaseQuantity}
         deleteCart={deleteCart}
+        isEmpty={isEmpty}
+        cartTotal={cartTotal}
       /> 
 
       <main className="container-xl mt-5">
@@ -151,7 +97,6 @@ function App() {
                 <Guitar
                   key={guitar.id} // el key siempre se pone siempre que se itera. tiene que ser un valor unico
                   guitar={guitar}
-                  setCart={setCart}
                   addToCart={addToCart} // pasandole la variable para actualizar el carrito
                 />
               )
