@@ -1,12 +1,9 @@
-import { useMemo } from "react"
 
-function Header({cart, deleteFromCart, increaseQuantity, decreaseQuantity, deleteCart}) {
+// Para los hooks personalizados, solamente se debe tener una instancia ya que cuando los usamos, basicamente volvemos a llamar toda la funcion, seteando a 0 todo
+// lo debemos pasar via props
+function Header({cart, deleteFromCart, increaseQuantity, decreaseQuantity, deleteCart, isEmpty, cartTotal}) {
 
-    // State derivado
-    const isEmpty = useMemo( () => cart.length === 0, [cart]) // depende del state del cart
-    const cartTotal = useMemo( () => cart.reduce((total, item) => total + (item.quantity * item.price), 0), [cart])
     
-
     // {variable} para mostrar variables en el html
     return (
         <header className="py-5 header">
